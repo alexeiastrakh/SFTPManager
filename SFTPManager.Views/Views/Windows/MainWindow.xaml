@@ -1,0 +1,95 @@
+﻿<Window x:Class="TestAssignmentForDCT.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:TestAssignmentForDCT.ViewModels"
+        xmlns:models="clr-namespace:TestAssignmentForDCT.Models"
+        xmlns:mainPage="clr-namespace:TestAssignmentForDCT.Pages"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:fa="http://schemas.fontawesome.com/icons/"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Icon="/Resources/Images/Icons/favicon.ico"
+        Title="SshSftpClientApp" 
+        MinHeight="450" 
+        MinWidth="850"
+        Background="{DynamicResource ThemeBackground}">
+
+    <Window.Resources>
+        <!-- Стиль для текстового поля -->
+        <Style x:Key="InputBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#FFF0F0F0" />
+            <Setter Property="Width" Value="260" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Margin" Value="12,10,0,10" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Padding" Value="5,6,5,6" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#FF707070" />
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="true">
+                    <Setter Property="Background" Value="#FF5C8AEC" />
+                    <Setter Property="BorderBrush" Value="#FF5C8AEC" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для кнопки -->
+        <Style x:Key="CustomButton" TargetType="Button">
+            <Setter Property="Background" Value="#FF9EC6FF" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="border" BorderThickness="0" Padding="12,0" CornerRadius="5" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Name="content" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FF5C8AEC" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ErrorBox" TargetType="Border">
+            <Setter Property="Grid.Row" Value="0" />
+            <Setter Property="Grid.ColumnSpan" Value="2" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Background" Value="#FFFFBDAA" />
+            <Setter Property="Margin" Value="20,10,28,19" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="Visibility" Value="Collapsed" />
+        </Style>
+    </Window.Resources>
+
+    <Window.DataContext>
+        <vm:MainViewModel></vm:MainViewModel>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <!-- Левая панель с кнопками -->
+        <StackPanel Grid.Column="0" Background="Honeydew">
+            <Button Style="{StaticResource CustomButton}" Height="40" Margin="5, 5, 5, 0" Command="{Binding ServersBtnClickCommand}" Content="{DynamicResource ServersButton}"/>
+            <Button Style="{StaticResource CustomButton}" Height="40" Margin="5, 5, 5, 0" Command="{Binding TerminalBtnClickCommand}" Content="{DynamicResource TerminalButton}"/>
+            <Button Style="{StaticResource CustomButton}" Height="40" Margin="5, 5, 5, 0" Command="{Binding FileTransferBtnClickCommand}" Content="{DynamicResource FileTransferButton}"/>
+            <Button Style="{StaticResource CustomButton}" Height="40" Margin="5, 5, 5, 0" Command="{Binding SettingsBtnClickCommand}" Content="{DynamicResource SettingsButton}"/>
+            <Button Style="{StaticResource CustomButton}" Height="40" Margin="5, 5, 5, 0" Command="{Binding OpenAddConnectionCommand}" Content="{DynamicResource AddHostButton}"/>
+        </StackPanel>
+
+        <Frame Grid.Column="1" Content="{Binding CurrentPage}" Opacity="{Binding FrameOpacity}" NavigationUIVisibility="Hidden"/>
+    </Grid>
+</Window>

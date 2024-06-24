@@ -1,0 +1,43 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="AddConnectionTitle">Add Connection</sys:String>
+    <sys:String x:Key="ServerLabel">Server</sys:String>
+    <sys:String x:Key="UsernameLabel">Username</sys:String>
+    <sys:String x:Key="PasswordLabel">Password</sys:String>
+    <sys:String x:Key="PortLabel">Port</sys:String>
+    <sys:String x:Key="ConnectButton">Connect</sys:String>
+    <sys:String x:Key="DisconnectButton">Disconnect</sys:String>
+    <sys:String x:Key="TestResult">Test Result</sys:String>
+
+    <sys:String x:Key="ServerDetailsTitle">Server Details</sys:String>
+    <sys:String x:Key="DeleteButton">Delete</sys:String>
+
+    <sys:String x:Key="TerminalTitle">Terminal</sys:String>
+    <sys:String x:Key="SendButton">Send</sys:String>
+
+    <sys:String x:Key="SettingsPageTitle">Settings</sys:String>
+    <sys:String x:Key="SelectLanguageLabel">Select language</sys:String>
+	<sys:String x:Key="SelectThemeLabel">Select theme</sys:String>
+
+
+	<sys:String x:Key="FileTransferPageTitle">File Transfer</sys:String>
+    <sys:String x:Key="LocalPathWatermark">Local Path</sys:String>
+    <sys:String x:Key="ChooseLocalFileButton">Choose Local File</sys:String>
+    <sys:String x:Key="RemotePathWatermark">Remote Path</sys:String>
+    <sys:String x:Key="UploadButton">Upload</sys:String>
+    <sys:String x:Key="DownloadButton">Download</sys:String>
+    <sys:String x:Key="LoadRemoteFileSystemButton">Load Remote File System</sys:String>
+    <sys:String x:Key="ResultLabel">Result</sys:String>
+
+    <sys:String x:Key="ServerDetailsPageTitle">Server Details</sys:String>
+    <sys:String x:Key="RemoveButton">Remove Connection</sys:String>
+
+    <sys:String x:Key="MainWindowTitle">SshSftpClientApp</sys:String>
+    <sys:String x:Key="ServersButton">Servers</sys:String>
+    <sys:String x:Key="TerminalButton">Terminal</sys:String>
+    <sys:String x:Key="FileTransferButton">File Transfer</sys:String>
+    <sys:String x:Key="SettingsButton">Settings</sys:String>
+    <sys:String x:Key="AddHostButton">Add Host</sys:String>
+</ResourceDictionary>
