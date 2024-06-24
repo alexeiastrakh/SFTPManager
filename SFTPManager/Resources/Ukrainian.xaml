@@ -24,17 +24,15 @@
 	<sys:String x:Key="FileTransferPageTitle">Передача файлів</sys:String>
     <sys:String x:Key="LocalPathWatermark">Локальний шлях</sys:String>
     <sys:String x:Key="ChooseLocalFileButton">Вибрати локальний файл</sys:String>
-    <sys:String x:Key="RemotePathWatermark">Віддалений шлях</sys:String>
+    <sys:String x:Key="RemotePathWatermark">Віддалений шлях , наприклад : \new.txt </sys:String>
     <sys:String x:Key="UploadButton">Завантажити</sys:String>
     <sys:String x:Key="DownloadButton">Скачати</sys:String>
     <sys:String x:Key="LoadRemoteFileSystemButton">Завантажити віддалену файлову систему</sys:String>
     <sys:String x:Key="ResultLabel">Результат</sys:String>
 
-    <!-- Додаткові ключі для деталей сервера -->
     <sys:String x:Key="ServerDetailsPageTitle">Деталі сервера</sys:String>
     <sys:String x:Key="RemoveButton">Видалити підключення</sys:String>
 
-    <!-- Додаткові ключі для головного вікна -->
     <sys:String x:Key="MainWindowTitle">SshSftpClientApp</sys:String>
     <sys:String x:Key="ServersButton">Сервери</sys:String>
     <sys:String x:Key="TerminalButton">Термінал</sys:String>

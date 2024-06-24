@@ -78,7 +78,8 @@
         {
             EnsureConnected();
 
-            using Stream stream = File.OpenWrite(localFilePath + Path.GetFileName(remoteFilePath));
+            string localFileName = Path.Combine(localFilePath, Path.GetFileName(remoteFilePath));
+            using Stream stream = File.OpenWrite(localFileName);
             await Task.Run(() => sftpClient.DownloadFile(remoteFilePath, stream));
         }
 
