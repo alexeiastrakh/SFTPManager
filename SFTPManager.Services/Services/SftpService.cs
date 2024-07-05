@@ -89,11 +89,15 @@
         {
             EnsureConnected();
 
+            if (!Directory.Exists(localFilePath))
+            {
+                throw new InvalidOperationException("please select the path for a folder and not a specific file");
+            }
+
             string localFileName = Path.Combine(localFilePath, Path.GetFileName(remoteFilePath));
             using Stream stream = File.OpenWrite(localFileName);
             await Task.Run(() => sftpClient.DownloadFile(remoteFilePath, stream));
         }
-
         public async Task<IEnumerable<string>> ListRemoteFilesAsync(string remoteDirectory)
         {
             EnsureConnected();
