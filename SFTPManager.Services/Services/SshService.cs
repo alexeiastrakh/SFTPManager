@@ -1,20 +1,27 @@
-﻿using Notification.Wpf;
-using Renci.SshNet;
-using Renci.SshNet.Common;
-using SFTPManager.Models;
-using SFTPManager.Resources;
-using SFTPManager.Services;
-using System;
-using System.Threading.Tasks;
-
-namespace SFTPManager.Core
+﻿namespace SFTPManager.Services
 {
+    using Notification.Wpf;
+    using Renci.SshNet;
+    using Renci.SshNet.Common;
+    using SFTPManager.Models;
+    using SFTPManager.Resources;
+    using SFTPManager.Services;
+    using System;
+    using System.Threading.Tasks;
     public class SshService : IDisposable
     {
-        private readonly NotificationService notificationService = new NotificationService();
+        private static readonly Lazy<SshService> instance = new Lazy<SshService>(() => new SshService());
+        private readonly NotificationService notificationService;
         private SshClient sshClient;
         private ShellStream shellStream;
         private bool isConnected;
+
+        private SshService()
+        {
+            notificationService = new NotificationService();
+        }
+
+        public static SshService Instance => instance.Value;
 
         public async Task<string> ConnectAsync(SftpSettings settings)
         {

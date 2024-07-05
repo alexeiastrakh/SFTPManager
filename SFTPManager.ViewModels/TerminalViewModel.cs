@@ -18,14 +18,13 @@
         private string terminalOutput;
         private string command;
         private readonly NotificationService notificationService;
-        private readonly SshService sshService;
         private readonly ISftpSettingsProvider settingsProvider;
+        private string currentDirectory = "/";
 
         public TerminalViewModel()
         {
             SendCommand = new AsyncRelayCommand(SendCommandToServerAsync);
             notificationService = new NotificationService();
-            sshService = new SshService();
             settingsProvider = SftpSettingsProvider.Instance;
             LoadSettings();
         }
@@ -73,23 +72,30 @@
                 string originalCommand = Command;
                 Command = string.Empty;
 
-                await sshService.ConnectAsync(Settings);
+                await SshService.Instance.ConnectAsync(Settings);
 
                 if (originalCommand.StartsWith("cd "))
                 {
                     var cdCommand = originalCommand.Substring(3).Trim();
-                    var result = await sshService.ExecuteCommandAsync($"cd {cdCommand}; pwd");
-
+                    var result = await SshService.Instance.ExecuteCommandAsync($"cd {cdCommand}; pwd");
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        currentDirectory = result.Trim();
+                    }
                     TerminalOutput += $"\n$ {originalCommand}\n{result}";
+                }
+                else if (originalCommand.Trim() == "pwd")
+                {
+                    TerminalOutput += $"\n$ {originalCommand}\n{currentDirectory}";
                 }
                 else
                 {
-                    var result = await sshService.ExecuteCommandAsync(originalCommand);
+                    var result = await SshService.Instance.ExecuteCommandAsync(originalCommand);
 
                     TerminalOutput += $"\n$ {originalCommand}\n{result}";
                 }
 
-                sshService.Disconnect();
+                SshService.Instance.Disconnect();
             }
             catch (SshAuthenticationException ex)
             {
@@ -105,7 +111,7 @@
 
         public void Dispose()
         {
-            sshService?.Dispose();
+            SshService.Instance?.Dispose();
         }
     }
 }

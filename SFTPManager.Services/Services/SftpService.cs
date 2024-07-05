@@ -15,13 +15,9 @@
     public sealed class SftpService : IDisposable
     {
         private static readonly Lazy<SftpService> lazyInstance = new Lazy<SftpService>(() => new SftpService());
-        private readonly NotificationService notificationService = new NotificationService();
         private SftpClient sftpClient;
-        private SshClient sshClient;
-        private ShellStream shellStream;
         private bool isConnected;
-        private bool isSftpConnected;
-        private bool isSshConnected;
+
 
         private SftpService() { }
 
@@ -55,45 +51,6 @@
                 throw new InvalidOperationException("Not connected to SFTP server");
             }
         }
-
-        public async Task<string> ExecuteSshCommandAsync(string commandText)
-        {
-            EnsureConnected();
-
-            if (shellStream == null)
-            {
-                throw new InvalidOperationException("Shell stream not available. SSH command execution is not supported.");
-            }
-
-            var result = await Task.Run(() =>
-            {
-                try
-                {
-                    shellStream.WriteLine(commandText);
-                    System.Threading.Thread.Sleep(500);
-                    string output = ReadStream(shellStream);
-                    return output;
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException($"Command execution error: {ex.Message}");
-                }
-            });
-
-            return result;
-        }
-
-        private string ReadStream(ShellStream stream)
-        {
-            var output = new System.Text.StringBuilder();
-            string line;
-            while ((line = stream.ReadLine(TimeSpan.FromMilliseconds(100))) != null)
-            {
-                output.AppendLine(line);
-            }
-            return output.ToString();
-        }
-
         public async Task UploadFileAsync(string localFilePath, string remoteFilePath)
         {
             EnsureConnected();
@@ -110,9 +67,18 @@
 
         private bool DirectoryExists(string directoryPath)
         {
-            var entries = sftpClient.ListDirectory(directoryPath);
-            return entries.Any(e => e.Name == ".");
+            try
+            {
+                sftpClient.ChangeDirectory(directoryPath);
+                sftpClient.ChangeDirectory("/");
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
+
 
         private void CreateDirectory(string directoryPath)
         {
