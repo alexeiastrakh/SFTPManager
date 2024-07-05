@@ -5,7 +5,6 @@
     using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
-    using System.Resources;
     using System.Threading.Tasks;
     using Notification.Wpf;
     using Renci.SshNet;
@@ -17,7 +16,6 @@
         private static readonly Lazy<SftpService> lazyInstance = new Lazy<SftpService>(() => new SftpService());
         private SftpClient sftpClient;
         private bool isConnected;
-
 
         private SftpService() { }
 
@@ -38,6 +36,7 @@
 
             return isConnected ? Resources_en.ConnectionSuccessful : Resources_en.ConnectionUnsuccessful;
         }
+
         public void Disconnect()
         {
             if (isConnected)
@@ -51,6 +50,7 @@
                 throw new InvalidOperationException("Not connected to SFTP server");
             }
         }
+
         public async Task UploadFileAsync(string localFilePath, string remoteFilePath)
         {
             EnsureConnected();
@@ -63,6 +63,75 @@
 
             using var fileStream = new FileStream(localFilePath, FileMode.Open);
             await Task.Run(() => sftpClient.UploadFile(fileStream, remoteFilePath));
+        }
+
+        public async Task DownloadFileAsync(string remoteFilePath, string localFilePath)
+        {
+            EnsureConnected();
+
+            if (File.Exists(localFilePath))
+            {
+                throw new InvalidOperationException("Please select the path for a folder and not a specific file.");
+            }
+
+            if (!Directory.Exists(localFilePath))
+            {
+                Directory.CreateDirectory(localFilePath);
+            }
+
+            if (IsDirectory(remoteFilePath))
+            {
+                await DownloadDirectoryAsync(remoteFilePath, localFilePath);
+            }
+            else
+            {
+                await DownloadSingleFileAsync(remoteFilePath, localFilePath);
+            }
+        }
+
+        private async Task DownloadSingleFileAsync(string remoteFilePath, string localFilePath)
+        {
+            string localFileName = Path.Combine(localFilePath, Path.GetFileName(remoteFilePath));
+            using Stream stream = File.OpenWrite(localFileName);
+            await Task.Run(() => sftpClient.DownloadFile(remoteFilePath, stream));
+        }
+
+        private async Task DownloadDirectoryAsync(string remoteDirectoryPath, string localDirectoryPath)
+        {
+            var files = sftpClient.ListDirectory(remoteDirectoryPath);
+
+            foreach (var file in files)
+            {
+                if (file.Name == "." || file.Name == "..")
+                {
+                    continue;
+                }
+
+                string localFilePath = Path.Combine(localDirectoryPath, file.Name);
+
+                if (file.IsDirectory)
+                {
+                    Directory.CreateDirectory(localFilePath);
+                    await DownloadDirectoryAsync(file.FullName, localFilePath);
+                }
+                else
+                {
+                    await DownloadSingleFileAsync(file.FullName, localDirectoryPath);
+                }
+            }
+        }
+
+        private bool IsDirectory(string remotePath)
+        {
+            try
+            {
+                var attributes = sftpClient.GetAttributes(remotePath);
+                return attributes.IsDirectory;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private bool DirectoryExists(string directoryPath)
@@ -79,25 +148,11 @@
             }
         }
 
-
         private void CreateDirectory(string directoryPath)
         {
             sftpClient.CreateDirectory(directoryPath);
         }
 
-        public async Task DownloadFileAsync(string remoteFilePath, string localFilePath)
-        {
-            EnsureConnected();
-
-            if (!Directory.Exists(localFilePath))
-            {
-                throw new InvalidOperationException("please select the path for a folder and not a specific file");
-            }
-
-            string localFileName = Path.Combine(localFilePath, Path.GetFileName(remoteFilePath));
-            using Stream stream = File.OpenWrite(localFileName);
-            await Task.Run(() => sftpClient.DownloadFile(remoteFilePath, stream));
-        }
         public async Task<IEnumerable<string>> ListRemoteFilesAsync(string remoteDirectory)
         {
             EnsureConnected();
