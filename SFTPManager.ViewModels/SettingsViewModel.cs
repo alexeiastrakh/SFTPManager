@@ -1,29 +1,76 @@
 ﻿namespace SFTPManager.ViewModels
 {
+    using System.Windows;
     using CommunityToolkit.Mvvm.ComponentModel;
-    using CommunityToolkit.Mvvm.Input;
-    using System.Windows.Input;
 
     public class SettingsViewModel : ObservableObject
     {
-        private string _selectedLanguage;
-
-        public string SelectedLanguage
-        {
-            get => _selectedLanguage;
-            set => SetProperty(ref _selectedLanguage, value);
-        }
-
-        public ICommand ChangeLanguageCommand { get; }
+        private string selectedLanguage;
+        private string selectedStyle;
 
         public SettingsViewModel()
         {
-            ChangeLanguageCommand = new RelayCommand<string>(ChangeLanguage);
+            Languages = new List<string> { "Українська", "English" };
+            Styles = new List<string> { "Light", "Dark" };
+            SelectedLanguage = "English";
+            SelectedStyle = "Dark";
         }
 
-        private void ChangeLanguage(string language)
+        public List<string> Languages { get; }
+
+        public List<string> Styles { get; }
+
+        public string SelectedLanguage
         {
-            SelectedLanguage = language;
+            get => selectedLanguage;
+            set
+            {
+                if (SetProperty(ref selectedLanguage, value))
+                {
+                    ChangeLanguage();
+                }
+            }
+        }
+
+        public string SelectedStyle
+        {
+            get => selectedStyle;
+            set
+            {
+                if (SetProperty(ref selectedStyle, value))
+                {
+                    ChangeStyle();
+                }
+            }
+        }
+
+        private void ChangeLanguage()
+        {
+            var languageUri = new Uri("/SFTPManager.Resources;component/Languages/" + SelectedLanguage + ".xaml", UriKind.Relative);
+            ResourceDictionary languageDictionary = Application.LoadComponent(languageUri) as ResourceDictionary;
+            ReplaceResourceDictionary("LanguageDictionary", languageDictionary);
+        }
+
+
+        private void ChangeStyle()
+        {
+            var themeUri = new Uri("/SFTPManager.Resources;component/Themes/" + SelectedStyle + ".xaml", UriKind.Relative);
+            ResourceDictionary themeDictionary = Application.LoadComponent(themeUri) as ResourceDictionary;
+            ReplaceResourceDictionary("ThemeDictionary", themeDictionary);
+        }
+
+        private void ReplaceResourceDictionary(string dictionaryKey, ResourceDictionary newDictionary)
+        {
+            var existingDictionary = Application.Current.Resources.MergedDictionaries
+                .FirstOrDefault(d => d.Contains(dictionaryKey));
+
+            if (existingDictionary != null)
+            {
+                Application.Current.Resources.MergedDictionaries.Remove(existingDictionary);
+            }
+
+            newDictionary.Add(dictionaryKey, null);
+            Application.Current.Resources.MergedDictionaries.Add(newDictionary);
         }
     }
 }

@@ -1,9 +1,15 @@
 ﻿namespace SFTPManager.ViewModels
 {
+    using System;
+    using System.Threading.Tasks;
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
     using Notification.Wpf;
+    using Renci.SshNet.Common;
+    using SFTPManager.Core;
+    using SFTPManager.Core.Interfaces;
     using SFTPManager.Models;
+    using SFTPManager.Resources;
     using SFTPManager.Services;
 
     public class TerminalViewModel : ObservableObject, IDisposable
@@ -11,21 +17,27 @@
         private SftpSettings settings;
         private string terminalOutput;
         private string command;
-        private readonly SftpService sftpService;
         private readonly NotificationService notificationService;
+        private readonly SshService sshService;
+        private readonly ISftpSettingsProvider settingsProvider;
 
         public TerminalViewModel()
         {
             SendCommand = new AsyncRelayCommand(SendCommandToServerAsync);
-            settings = new SftpSettings();
-            sftpService = SftpService.Instance;
             notificationService = new NotificationService();
+            sshService = new SshService();
+            settingsProvider = SftpSettingsProvider.Instance;
+            LoadSettings();
         }
 
         public SftpSettings Settings
         {
             get => settings;
-            set => SetProperty(ref settings, value);
+            set
+            {
+                SetProperty(ref settings, value);
+                settingsProvider.SetSettings(value);
+            }
         }
 
         public string TerminalOutput
@@ -42,62 +54,58 @@
 
         public IAsyncRelayCommand SendCommand { get; }
 
-        private async Task SendCommandToServerAsync()
+        private void LoadSettings()
+        {
+            Settings = settingsProvider.GetSettings();
+        }
+
+        public async Task SendCommandToServerAsync()
         {
             if (string.IsNullOrEmpty(Command))
             {
-                notificationService.ShowNotification("Command", "Please enter a command.", NotificationType.Warning);
+                notificationService.ShowNotification(Resources_en.CommandTitle, Resources_en.CommandPrompt, NotificationType.Warning);
                 return;
             }
-
-            var sftpCommand = sftpService.CreateCommand(Command);
-            if (sftpCommand == null)
-            {
-                TerminalOutput += "\nError: Not connected to SFTP server";
-                return;
-            }
-
-            string originalCommand = Command;
-            Command = string.Empty;
 
             try
             {
-                var result = await Task.Run(() =>
-                {
-                    try
-                    {
-                        var commandResult = sftpCommand.Execute();
-                        if (sftpCommand.ExitStatus != 0)
-                        {
-                            throw new InvalidOperationException($"Command failed with status {sftpCommand.ExitStatus}: {sftpCommand.Error}");
-                        }
 
-                        return commandResult;
-                    }
-                    catch (Exception ex)
-                    {
-                        TerminalOutput += $"\nCommand execution error: {ex.Message}";
-                        throw;
-                    }
-                });
+                string originalCommand = Command;
+                Command = string.Empty;
 
-                if (string.IsNullOrEmpty(result))
+                await sshService.ConnectAsync(Settings);
+
+                if (originalCommand.StartsWith("cd "))
                 {
-                    throw new InvalidOperationException("No output generated after executing the command.");
+                    var cdCommand = originalCommand.Substring(3).Trim();
+                    var result = await sshService.ExecuteCommandAsync($"cd {cdCommand}; pwd");
+
+                    TerminalOutput += $"\n$ {originalCommand}\n{result}";
+                }
+                else
+                {
+                    var result = await sshService.ExecuteCommandAsync(originalCommand);
+
+                    TerminalOutput += $"\n$ {originalCommand}\n{result}";
                 }
 
-                TerminalOutput += $"\n$ {originalCommand}\n{result}";
+                sshService.Disconnect();
+            }
+            catch (SshAuthenticationException ex)
+            {
+                TerminalOutput += $"\nError: {ex.Message}";
+                notificationService.ShowNotification(Resources_en.CommandErrorTitle, string.Format(Resources_en.CommandErrorMessage, ex.Message), NotificationType.Error);
             }
             catch (Exception ex)
             {
                 TerminalOutput += $"\nError: {ex.Message}";
-                notificationService.ShowNotification("Command Error", $"Failed to execute command: {ex.Message}", NotificationType.Error);
+                notificationService.ShowNotification(Resources_en.CommandErrorTitle, string.Format(Resources_en.CommandErrorMessage, ex.Message), NotificationType.Error);
             }
         }
 
         public void Dispose()
         {
-            sftpService?.Dispose();
+            sshService?.Dispose();
         }
     }
 }

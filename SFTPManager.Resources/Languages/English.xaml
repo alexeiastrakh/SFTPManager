@@ -17,15 +17,20 @@
     <sys:String x:Key="TerminalTitle">Terminal</sys:String>
     <sys:String x:Key="SendButton">Send</sys:String>
 
+    <sys:String x:Key="LightTheme">Dark</sys:String>
+    <sys:String x:Key="DarkTheme">Light</sys:String>
+
     <sys:String x:Key="SettingsPageTitle">Settings</sys:String>
     <sys:String x:Key="SelectLanguageLabel">Select language</sys:String>
 	<sys:String x:Key="SelectThemeLabel">Select theme</sys:String>
 
+    <sys:String x:Key="NoSavedConnections">No saved connections</sys:String>
 
-	<sys:String x:Key="FileTransferPageTitle">File Transfer</sys:String>
+
+    <sys:String x:Key="FileTransferPageTitle">File Transfer</sys:String>
     <sys:String x:Key="LocalPathWatermark">Local Path</sys:String>
     <sys:String x:Key="ChooseLocalFileButton">Choose Local File</sys:String>
-    <sys:String x:Key="RemotePathWatermark">Remote Path , for example : \new.txt </sys:String>
+    <sys:String x:Key="RemotePathWatermark">Remote Path , for example : example\new.txt </sys:String>
     <sys:String x:Key="UploadButton">Upload</sys:String>
     <sys:String x:Key="DownloadButton">Download</sys:String>
     <sys:String x:Key="LoadRemoteFileSystemButton">Load Remote File System</sys:String>

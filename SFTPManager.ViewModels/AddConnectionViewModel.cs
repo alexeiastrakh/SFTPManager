@@ -1,31 +1,39 @@
 ﻿namespace SFTPManager.ViewModels
 {
+    using System;
     using System.Linq;
-    using System.Text.RegularExpressions;
+    using System.Net;
+    using System.Threading.Tasks;
     using System.Windows.Input;
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
     using Notification.Wpf;
+    using SFTPManager.Core;
+    using SFTPManager.Core.Interfaces;
+    using SFTPManager.Helpers;
     using SFTPManager.Models;
+    using SFTPManager.Resources;
     using SFTPManager.Services;
 
     public class AddConnectionViewModel : ObservableObject
     {
+        private SftpSettings settings;
         private string testResult;
-        private SftpSettings settings = new SftpSettings();
-        private readonly SessionService sessionService;
         private readonly NotificationService notificationService;
-        private bool isUpdating;
+        private ISftpSettingsProvider settingsProvider;
+        private SshService sshService;
+        private readonly SessionService sessionService;
 
         public event Action<SftpSettings> ConnectionSaved;
 
         public AddConnectionViewModel()
         {
-            sessionService = new SessionService();
             notificationService = new NotificationService();
-
             TestConnectionCommand = new AsyncRelayCommand(TestConnectionAsync);
             DisconnectCommand = new RelayCommand(Disconnect);
+            settingsProvider = SftpSettingsProvider.Instance;
+            sessionService = new SessionService();
+            Settings = new SftpSettings();
         }
 
         public SftpSettings Settings
@@ -40,11 +48,7 @@
             set => SetProperty(ref testResult, value);
         }
 
-        public bool IsUpdating
-        {
-            get => isUpdating;
-            set => SetProperty(ref isUpdating, value);
-        }
+        public bool IsUpdating { get; set; }
 
         public ICommand TestConnectionCommand { get; }
 
@@ -56,9 +60,19 @@
             {
                 try
                 {
-                    TestResult = await SftpService.Instance.ConnectAsync(Settings);
-                    SaveConnection();
-                    ShowNotification("Connection", "Connection successful.", NotificationType.Success);
+                    if (Settings != null)
+                    {
+                        TestResult = await SftpService.Instance.ConnectAsync(Settings);
+                        if (TestResult == Resources_en.ConnectionSuccessful)
+                        {
+                            SaveConnection();
+                            ShowNotification("Connection", Resources_en.ConnectionSuccessful, NotificationType.Success);
+                        }
+                    }
+                    else
+                    {
+                        ShowNotification("Connection Error", "Settings or service not available.", NotificationType.Error);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -69,49 +83,44 @@
 
         private bool IsInputValid()
         {
-            if (string.IsNullOrEmpty(Settings.Server) || string.IsNullOrEmpty(Settings.Username))
+            if (Settings == null || string.IsNullOrEmpty(Settings.Server) || string.IsNullOrEmpty(Settings.Username))
             {
-                ShowNotification("Validation Error", "Please fill in both server and username fields.", NotificationType.Warning);
+                ShowNotification("Validation Error", Resources_en.ValidationServerUsernameEmpty, NotificationType.Warning);
                 return false;
             }
 
-            Match matchIP = Regex.Match(Settings.Server, @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$", RegexOptions.IgnoreCase);
-            Match matchHN = Regex.Match(Settings.Server, @"^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$", RegexOptions.IgnoreCase);
-
-            if (!matchIP.Success && !matchHN.Success)
+            if (!IsValidIpAddress(Settings.Server) && !HostnameValidation.Validate(Settings.Server))
             {
-                ShowNotification("Validation Error", "The hostname or IP address you have entered appears to be invalid.", NotificationType.Warning);
+                ShowNotification("Validation Error", Resources_en.ValidationInvalidHostOrIp, NotificationType.Warning);
                 return false;
             }
 
             return true;
         }
 
+        private bool IsValidIpAddress(string address)
+        {
+            return IPAddress.TryParse(address, out _);
+        }
+
         private void SaveConnection()
         {
             var connections = sessionService.LoadData();
 
-            if (IsUpdating)
-            {
-                UpdateExistingConnection(connections);
-            }
-            else
-            {
-                connections.Add(this.Settings);
-            }
-
-            sessionService.SaveData(connections);
-            ConnectionSaved?.Invoke(Settings);
-        }
-
-        private void UpdateExistingConnection(ICollection<SftpSettings> connections)
-        {
             var existingConnection = connections.FirstOrDefault(c => c.Server == Settings.Server && c.Username == Settings.Username);
             if (existingConnection != null)
             {
                 existingConnection.Port = Settings.Port;
                 existingConnection.Password = Settings.Password;
             }
+            else
+            {
+                connections.Add(Settings);
+            }
+
+            sessionService.SaveData(connections);
+            ConnectionSaved?.Invoke(Settings);
+            settingsProvider.SetSettings(Settings);
         }
 
         private void Disconnect()
@@ -119,8 +128,8 @@
             try
             {
                 SftpService.Instance.Disconnect();
-                TestResult = "Server disconnected";
-                ShowNotification("Disconnected", "Successfully disconnected from the server.", NotificationType.Information);
+                TestResult = Resources_en.DisconnectedSuccessfully;
+                ShowNotification("Disconnected", Resources_en.DisconnectedSuccessfully, NotificationType.Information);
             }
             catch (Exception ex)
             {

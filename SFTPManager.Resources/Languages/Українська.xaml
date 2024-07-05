@@ -11,9 +11,14 @@
     <sys:String x:Key="DisconnectButton">Відключити</sys:String>
     <sys:String x:Key="TestResult">Результат тестування</sys:String>
 
+    <sys:String x:Key="LightTheme">Світла</sys:String>
+    <sys:String x:Key="DarkTheme">Темна</sys:String>
+    
     <sys:String x:Key="ServerDetailsTitle">Деталі сервера</sys:String>
     <sys:String x:Key="DeleteButton">Видалити</sys:String>
 
+    <sys:String x:Key="NoSavedConnections">Нема збережених підключень</sys:String>
+    
     <sys:String x:Key="TerminalTitle">Термінал</sys:String>
     <sys:String x:Key="SendButton">Відправити</sys:String>
 
@@ -24,7 +29,7 @@
 	<sys:String x:Key="FileTransferPageTitle">Передача файлів</sys:String>
     <sys:String x:Key="LocalPathWatermark">Локальний шлях</sys:String>
     <sys:String x:Key="ChooseLocalFileButton">Вибрати локальний файл</sys:String>
-    <sys:String x:Key="RemotePathWatermark">Віддалений шлях , наприклад : \new.txt </sys:String>
+    <sys:String x:Key="RemotePathWatermark">Віддалений шлях , наприклад : example\new.txt </sys:String>
     <sys:String x:Key="UploadButton">Завантажити</sys:String>
     <sys:String x:Key="DownloadButton">Скачати</sys:String>
     <sys:String x:Key="LoadRemoteFileSystemButton">Завантажити віддалену файлову систему</sys:String>

@@ -5,10 +5,12 @@
     using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
+    using System.Resources;
     using System.Threading.Tasks;
     using Notification.Wpf;
     using Renci.SshNet;
     using SFTPManager.Models;
+    using SFTPManager.Resources;
 
     public sealed class SftpService : IDisposable
     {
@@ -16,7 +18,10 @@
         private readonly NotificationService notificationService = new NotificationService();
         private SftpClient sftpClient;
         private SshClient sshClient;
+        private ShellStream shellStream;
         private bool isConnected;
+        private bool isSftpConnected;
+        private bool isSshConnected;
 
         private SftpService() { }
 
@@ -26,26 +31,23 @@
         {
             if (isConnected)
             {
-                throw new InvalidOperationException("Already connected");
+                throw new InvalidOperationException("Already connected to SFTP server");
             }
 
             sftpClient = new SftpClient(settings.Server, settings.Port, settings.Username, settings.Password);
-            sshClient = new SshClient(settings.Server, settings.Port, settings.Username, settings.Password);
 
-            await Task.WhenAll(Task.Run(() => sftpClient.Connect()), Task.Run(() => sshClient.Connect()));
-            isConnected = sftpClient.IsConnected && sshClient.IsConnected;
+            await Task.Run(() => sftpClient.Connect());
 
-            return isConnected ? "Connection successful" : "Connection failed";
+            isConnected = sftpClient.IsConnected;
+
+            return isConnected ? Resources_en.ConnectionSuccessful : Resources_en.ConnectionUnsuccessful;
         }
-
         public void Disconnect()
         {
             if (isConnected)
             {
                 sftpClient.Disconnect();
-                sshClient.Disconnect();
                 sftpClient.Dispose();
-                sshClient.Dispose();
                 isConnected = false;
             }
             else
@@ -54,24 +56,67 @@
             }
         }
 
-        public SshCommand CreateCommand(string commandText)
+        public async Task<string> ExecuteSshCommandAsync(string commandText)
         {
-            if (!isConnected)
+            EnsureConnected();
+
+            if (shellStream == null)
             {
-                notificationService.ShowNotification("Warning", "Not connected to SFTP server", NotificationType.Warning);
-                return null;
+                throw new InvalidOperationException("Shell stream not available. SSH command execution is not supported.");
             }
 
-            return sshClient.CreateCommand(commandText);
+            var result = await Task.Run(() =>
+            {
+                try
+                {
+                    shellStream.WriteLine(commandText);
+                    System.Threading.Thread.Sleep(500);
+                    string output = ReadStream(shellStream);
+                    return output;
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"Command execution error: {ex.Message}");
+                }
+            });
+
+            return result;
+        }
+
+        private string ReadStream(ShellStream stream)
+        {
+            var output = new System.Text.StringBuilder();
+            string line;
+            while ((line = stream.ReadLine(TimeSpan.FromMilliseconds(100))) != null)
+            {
+                output.AppendLine(line);
+            }
+            return output.ToString();
         }
 
         public async Task UploadFileAsync(string localFilePath, string remoteFilePath)
         {
             EnsureConnected();
 
-            string fileName = Path.GetFileName(localFilePath);
+            string remoteDirectory = Path.GetDirectoryName(remoteFilePath);
+            if (!string.IsNullOrEmpty(remoteDirectory) && !DirectoryExists(remoteDirectory))
+            {
+                CreateDirectory(remoteDirectory);
+            }
+
             using var fileStream = new FileStream(localFilePath, FileMode.Open);
-            await Task.Run(() => sftpClient.UploadFile(fileStream, Path.Combine(remoteFilePath, fileName)));
+            await Task.Run(() => sftpClient.UploadFile(fileStream, remoteFilePath));
+        }
+
+        private bool DirectoryExists(string directoryPath)
+        {
+            var entries = sftpClient.ListDirectory(directoryPath);
+            return entries.Any(e => e.Name == ".");
+        }
+
+        private void CreateDirectory(string directoryPath)
+        {
+            sftpClient.CreateDirectory(directoryPath);
         }
 
         public async Task DownloadFileAsync(string remoteFilePath, string localFilePath)

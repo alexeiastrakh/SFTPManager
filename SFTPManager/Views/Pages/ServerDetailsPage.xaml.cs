@@ -1,6 +1,6 @@
-﻿using SFTPManager.ViewModels;
+﻿using System.Windows.Controls;
 using System.Windows;
-using System.Windows.Controls;
+using SFTPManager.ViewModels;
 
 namespace SFTPManager.Views.Pages
 {
@@ -21,9 +21,8 @@ namespace SFTPManager.Views.Pages
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            if (DataContext is ServerDetailsViewModel viewModel)
+            if (this.DataContext is ServerDetailsViewModel viewModel)
             {
-                viewModel.LoadData();
                 viewModel.SubscribeToConnectionSavedEvent();
             }
         }

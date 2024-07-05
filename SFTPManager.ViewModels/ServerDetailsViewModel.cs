@@ -2,6 +2,7 @@
 {
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Windows;
     using System.Windows.Input;
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
@@ -20,9 +21,21 @@
             Connections = new ObservableCollection<SftpSettings>();
 
             LoadData();
+            SubscribeToConnectionSavedEvent();
 
             NavigateToAddConnectionCommand = new RelayCommand(NavigateToAddConnection, () => SelectedConnection != null);
             RemoveConnectionCommand = new RelayCommand<SftpSettings>(RemoveConnection, CanRemoveConnection);
+        }
+
+        public void SubscribeToConnectionSavedEvent()
+        {
+            if (Application.Current.MainWindow?.DataContext is MainViewModel mainViewModel)
+            {
+                if (mainViewModel.CurrentViewModel is AddConnectionViewModel addConnectionViewModel)
+                {
+                    addConnectionViewModel.ConnectionSaved += OnConnectionSaved;
+                }
+            }
         }
 
         public ObservableCollection<SftpSettings> Connections
@@ -67,16 +80,17 @@
 
         private void NavigateToAddConnection()
         {
-            var mainViewModel = (MainViewModel)App.Current.MainWindow.DataContext;
+            if (Application.Current.MainWindow?.DataContext is MainViewModel mainViewModel)
+            {
+                var addConnectionViewModel = new AddConnectionViewModel();
+                addConnectionViewModel.Settings = SelectedConnection;
+                addConnectionViewModel.IsUpdating = true;
+                addConnectionViewModel.ConnectionSaved += OnConnectionSaved;
 
-            var addConnectionPage = new AddConnectionPage();
-            var addConnectionViewModel = (AddConnectionViewModel)addConnectionPage.DataContext;
-            addConnectionViewModel.Settings = SelectedConnection;
-            addConnectionViewModel.IsUpdating = true;
-            addConnectionViewModel.ConnectionSaved += OnConnectionSaved;
-
-            mainViewModel.CurrentPage = addConnectionPage;
+                mainViewModel.CurrentViewModel = addConnectionViewModel;
+            }
         }
+
 
         private void OnConnectionSaved(SftpSettings updatedConnection)
         {

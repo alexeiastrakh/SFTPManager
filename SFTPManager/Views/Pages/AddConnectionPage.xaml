@@ -3,15 +3,16 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:vm="clr-namespace:SFTPManager.ViewModels"
+      xmlns:vm="clr-namespace:SFTPManager.ViewModels;assembly=SFTPManager.ViewModels"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:helpers="clr-namespace:SFTPManager.Helpers;assembly=SFTPManager.Helpers"
       mc:Ignorable="d"
       Title="{DynamicResource AddConnectionPageTitle}" Height="560" Width="770"
       Background="{DynamicResource ThemeBackground}">
 
-    <Page.DataContext>
-        <vm:AddConnectionViewModel/>
-    </Page.DataContext>
+    <Page.Resources>
+        <helpers:PasswordHelper x:Key="PasswordHelper"/>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -40,28 +41,30 @@
                VerticalAlignment="Top" Width="176" Padding="4,6" 
                Style="{DynamicResource TextBlockStyle}"/>
             <TextBox x:Name="ServerTextBox" Grid.Row="0" Grid.Column="1" 
-             Text="{Binding Settings.Server}" TextWrapping="Wrap" />
+             Text="{Binding Settings.Server, Mode=TwoWay}" TextWrapping="Wrap" />
 
             <TextBlock Grid.Row="1" HorizontalAlignment="Right" Height="30" Margin="-12,10,12,0" 
                TextWrapping="Wrap" Text="{DynamicResource UsernameLabel}" 
                VerticalAlignment="Top" Width="176" Padding="4,6" 
                Style="{DynamicResource TextBlockStyle}"/>
             <TextBox x:Name="UsernameTextBox" Grid.Row="1" Grid.Column="1" 
-             Text="{Binding Settings.Username}" TextWrapping="Wrap" />
+             Text="{Binding Settings.Username, Mode=TwoWay}" TextWrapping="Wrap" />
 
             <TextBlock Grid.Row="2" HorizontalAlignment="Right" Height="30" Margin="-12,10,12,0" 
                TextWrapping="Wrap" Text="{DynamicResource PasswordLabel}" 
                VerticalAlignment="Top" Width="176" Padding="4,6" 
                Style="{DynamicResource TextBlockStyle}"/>
             <PasswordBox x:Name="PasswordBox" Grid.Row="2" Grid.Column="1" 
-                 PasswordChar="*" PasswordChanged="PasswordBox_PasswordChanged" />
+                         helpers:PasswordHelper.Attach="True"
+                         helpers:PasswordHelper.BoundPassword="{Binding Settings.Password, Mode=TwoWay}"
+                         PasswordChar="*" />
 
             <TextBlock Grid.Row="3" HorizontalAlignment="Right" Height="30" Margin="-12,10,12,0" 
                TextWrapping="Wrap" Text="{DynamicResource PortLabel}" 
                VerticalAlignment="Top" Width="176" Padding="4,6" 
                Style="{DynamicResource TextBlockStyle}"/>
             <TextBox x:Name="PortTextBox" Grid.Row="3" Grid.Column="1" 
-             Text="{Binding Settings.Port}" TextWrapping="Wrap" />
+             Text="{Binding Settings.Port, Mode=TwoWay}" TextWrapping="Wrap" />
 
             <Button Content="{DynamicResource ConnectButton}" x:Name="TestConnectionButton" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Top" Height="43" Margin="170,22,0,0" Command="{Binding TestConnectionCommand}" Width="125" Grid.ColumnSpan="2"   Style="{DynamicResource ButtonStyle}"/>
             <Button Content="{DynamicResource DisconnectButton}" x:Name="DisconnectCommandButton" HorizontalAlignment="Left" Grid.Column="1" VerticalAlignment="Top" Height="45" Margin="125,20,0,0" Command="{Binding DisconnectCommand}" Width="120" RenderTransformOrigin="0.591,0.5" Grid.Row="4"   Style="{DynamicResource ButtonStyle}"/>

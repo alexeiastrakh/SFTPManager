@@ -10,6 +10,7 @@
     using Microsoft.Win32;
     using Notification.Wpf;
     using SFTPManager.Models;
+    using SFTPManager.Resources;
     using SFTPManager.Services;
 
     public class FileTransferViewModel : ObservableObject
@@ -69,19 +70,30 @@
         {
             if (!ArePathsValid())
             {
-                ShowNotification("Error", "Please select both local and remote paths.", NotificationType.Warning);
+                ShowNotification(Resources_en.ErrorTitle, Resources_en.ErrorSelectPaths, NotificationType.Warning);
                 return;
             }
 
             try
             {
-                await SftpService.Instance.UploadFileAsync(Settings.LocalPath, Settings.RemotePath);
-                Result = $"Uploaded Successfully. Name: {Path.GetFileName(Settings.LocalPath)}";
-                ShowNotification("File Upload", "Uploaded Successfully.");
+                string remoteFilePath;
+
+                if (string.IsNullOrEmpty(Settings.RemotePath))
+                {
+                    remoteFilePath = Path.GetFileName(Settings.LocalPath);
+                }
+                else
+                {
+                    remoteFilePath = Settings.RemotePath.EndsWith("/") ? $"{Settings.RemotePath}{Path.GetFileName(Settings.LocalPath)}" : $"{Settings.RemotePath}/{Path.GetFileName(Settings.LocalPath)}";
+                }
+
+                await SftpService.Instance.UploadFileAsync(Settings.LocalPath, remoteFilePath);
+                Result = $"{Resources_en.UploadSuccess} Name: {Path.GetFileName(Settings.LocalPath)}";
+                ShowNotification("File Upload", Resources_en.UploadSuccess);
             }
             catch (Exception ex)
             {
-                HandleError(ex, "File Upload Failed");
+                HandleError(ex, Resources_en.FileUploadFailed);
             }
         }
 
@@ -89,7 +101,7 @@
         {
             if (!ArePathsValid())
             {
-                ShowNotification("Error", "Please select both local and remote paths.", NotificationType.Warning);
+                ShowNotification(Resources_en.ErrorTitle, Resources_en.ErrorSelectPaths, NotificationType.Warning);
                 return;
             }
 
@@ -97,20 +109,22 @@
             {
                 if (File.Exists(Settings.LocalPath))
                 {
-                    ShowNotification("File Download", "File already exists. Attempting to overwrite...");
+                    ShowNotification("File Download", Resources_en.FileExists);
                 }
 
-                await SftpService.Instance.DownloadFileAsync(Settings.RemotePath, Settings.LocalPath);
-                Result = $"Downloaded successfully. Name: {Path.GetFileName(Settings.LocalPath)}";
-                ShowNotification("File Download", "Downloaded Successfully.");
+                string remoteFilePath = Settings.RemotePath.Replace("\\", "/");
+                string localFilePath = Settings.LocalPath;
+                await SftpService.Instance.DownloadFileAsync(remoteFilePath, localFilePath);
+                Result = $"{Resources_en.DownloadSuccess} Name: {Path.GetFileName(Settings.LocalPath)}";
+                ShowNotification("File Download", Resources_en.DownloadSuccess);
             }
             catch (UnauthorizedAccessException uex)
             {
-                HandleError(uex, "Access Denied");
+                HandleError(uex, Resources_en.AccessDenied);
             }
             catch (Exception ex)
             {
-                HandleError(ex, "File Download Failed");
+                HandleError(ex, Resources_en.FileDownloadFailed);
             }
         }
 
@@ -134,7 +148,7 @@
                     RemoteFileSystemItems.Add(item);
                 }
 
-                Result = "File system loaded successfully.";
+                Result = Resources_en.FileSystemLoaded;
             }
             catch (Exception ex)
             {
@@ -144,7 +158,7 @@
 
         private bool ArePathsValid()
         {
-            return !string.IsNullOrEmpty(Settings.LocalPath) && !string.IsNullOrEmpty(Settings.RemotePath);
+            return !string.IsNullOrEmpty(Settings.LocalPath);
         }
 
         private void HandleError(Exception ex, string title)

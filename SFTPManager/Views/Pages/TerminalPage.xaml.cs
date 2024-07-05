@@ -11,16 +11,17 @@ namespace SFTPManager.Views.Pages
             InitializeComponent();
         }
 
-        private void CommandTextBox_KeyDown(object sender, KeyEventArgs e)
+        private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                var viewModel = (TerminalViewModel)DataContext;
-                if (viewModel.SendCommand.CanExecute(null))
+                if (DataContext is TerminalViewModel viewModel)
                 {
-                    viewModel.SendCommand.Execute(null);
+                    viewModel.SendCommandToServerAsync();
                 }
+                e.Handled = true; 
             }
         }
+
     }
 }
