@@ -1,4 +1,8 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace SFTPManager.Views.Pages
 {
@@ -8,5 +12,6 @@ namespace SFTPManager.Views.Pages
         {
             InitializeComponent();
         }
+
     }
 }

@@ -17,8 +17,11 @@
     <sys:String x:Key="TerminalTitle">Terminal</sys:String>
     <sys:String x:Key="SendButton">Send</sys:String>
 
-    <sys:String x:Key="LightTheme">Dark</sys:String>
-    <sys:String x:Key="DarkTheme">Light</sys:String>
+    <sys:String x:Key="LightTheme">Light</sys:String>
+    <sys:String x:Key="DarkTheme">Dark</sys:String>
+
+    <sys:String x:Key="English">English</sys:String>
+    <sys:String x:Key="Ukrainian">Ukrainian</sys:String>
 
     <sys:String x:Key="SettingsPageTitle">Settings</sys:String>
     <sys:String x:Key="SelectLanguageLabel">Select language</sys:String>

@@ -13,6 +13,9 @@
 
     <sys:String x:Key="LightTheme">Світла</sys:String>
     <sys:String x:Key="DarkTheme">Темна</sys:String>
+
+    <sys:String x:Key="English">Англійська</sys:String>
+    <sys:String x:Key="Ukrainian">Українська</sys:String>
     
     <sys:String x:Key="ServerDetailsTitle">Деталі сервера</sys:String>
     <sys:String x:Key="DeleteButton">Видалити</sys:String>

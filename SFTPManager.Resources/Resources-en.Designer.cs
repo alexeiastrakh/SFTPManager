@@ -124,6 +124,15 @@ namespace SFTPManager.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Dark.
+        /// </summary>
+        public static string Dark {
+            get {
+                return ResourceManager.GetString("Dark", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Successfully disconnected from the server..
         /// </summary>
         public static string DisconnectedSuccessfully {
@@ -138,6 +147,15 @@ namespace SFTPManager.Resources {
         public static string DownloadSuccess {
             get {
                 return ResourceManager.GetString("DownloadSuccess", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to English.
+        /// </summary>
+        public static string English {
+            get {
+                return ResourceManager.GetString("English", resourceCulture);
             }
         }
 
@@ -196,6 +214,24 @@ namespace SFTPManager.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Light.
+        /// </summary>
+        public static string Light {
+            get {
+                return ResourceManager.GetString("Light", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ukrainian.
+        /// </summary>
+        public static string Ukrainian {
+            get {
+                return ResourceManager.GetString("Ukrainian", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Uploaded Successfully..
         /// </summary>
         public static string UploadSuccess {
@@ -212,7 +248,7 @@ namespace SFTPManager.Resources {
                 return ResourceManager.GetString("ValidationInvalidHostOrIp", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Please fill in both server and username fields..
         /// </summary>
