@@ -6,25 +6,29 @@
     using System.Windows.Input;
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
+    using Notification.Wpf;
+    using Renci.SshNet.Messages;
     using SFTPManager.Models;
+    using SFTPManager.Resources;
     using SFTPManager.Services;
 
     public class ServerDetailsViewModel : ObservableObject
     {
         private ObservableCollection<SftpSettings> connections;
         private SftpSettings selectedConnection;
+        private readonly NotificationService notificationService;
         private readonly SessionService sessionService;
 
         public ServerDetailsViewModel()
         {
             sessionService = new SessionService();
             Connections = new ObservableCollection<SftpSettings>();
-
+            notificationService = new NotificationService();
             LoadData();
             SubscribeToConnectionSavedEvent();
 
             NavigateToAddConnectionCommand = new RelayCommand(NavigateToAddConnection, () => SelectedConnection != null);
-            RemoveConnectionCommand = new RelayCommand<SftpSettings>(RemoveConnection, CanRemoveConnection);
+            RemoveConnectionCommand = new RelayCommand<SftpSettings>(RemoveConnectionAsync, CanRemoveConnection);
         }
 
         public void SubscribeToConnectionSavedEvent()
@@ -69,28 +73,35 @@
             return connection != null;
         }
 
-        private void RemoveConnection(SftpSettings connection)
+        private async void RemoveConnectionAsync(SftpSettings connection)
         {
             if (connection == null) return;
+
+            if (await SftpService.Instance.IsConnectedAsync(connection))
+            {
+                SftpService.Instance.Disconnect();
+            }
 
             Connections.Remove(connection);
             sessionService.SaveData(Connections);
             SelectedConnection = null;
+            notificationService.ShowNotification("Connection removed", Resources_en.RemoveConnection, NotificationType.Success);
         }
 
         private void NavigateToAddConnection()
         {
             if (Application.Current.MainWindow?.DataContext is MainViewModel mainViewModel)
             {
-                var addConnectionViewModel = new AddConnectionViewModel();
-                addConnectionViewModel.Settings = SelectedConnection;
-                addConnectionViewModel.IsUpdating = true;
+                var addConnectionViewModel = new AddConnectionViewModel
+                {
+                    Settings = SelectedConnection,
+                    IsUpdating = true
+                };
                 addConnectionViewModel.ConnectionSaved += OnConnectionSaved;
 
                 mainViewModel.CurrentViewModel = addConnectionViewModel;
             }
         }
-
 
         private void OnConnectionSaved(SftpSettings updatedConnection)
         {

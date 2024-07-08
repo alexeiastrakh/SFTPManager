@@ -29,7 +29,8 @@
             </Border.Effect>
             <StackPanel>
                 <extToolkit:WatermarkTextBox Text="{Binding Settings.LocalPath}" Watermark="{DynamicResource LocalPathWatermark}" Margin="0,0,0,5"/>
-                <Button Content="{DynamicResource ChooseLocalFileButton}" Command="{Binding OpenFileDialogCommand}" Style="{DynamicResource ButtonStyle}" Height="40"/>
+                <Button Content="{DynamicResource ChooseLocalFileButton}" Command="{Binding OpenFileDialogCommand}" Style="{DynamicResource ButtonStyle}" Height="20"/>
+                <Button Content="{DynamicResource ChooseLocalFolderButton}" Command="{Binding OpenFolderDialogCommand}" Style="{DynamicResource ButtonStyle}" Height="20" />
             </StackPanel>
         </Border>
 

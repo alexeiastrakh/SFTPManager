@@ -33,6 +33,7 @@
     <sys:String x:Key="FileTransferPageTitle">File Transfer</sys:String>
     <sys:String x:Key="LocalPathWatermark">Local Path</sys:String>
     <sys:String x:Key="ChooseLocalFileButton">Choose Local File</sys:String>
+    <sys:String x:Key="ChooseLocalFolderButton">Choose Local Folder</sys:String>
     <sys:String x:Key="RemotePathWatermark">Remote Path , for example : example\new.txt </sys:String>
     <sys:String x:Key="UploadButton">Upload</sys:String>
     <sys:String x:Key="DownloadButton">Download</sys:String>

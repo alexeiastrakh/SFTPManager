@@ -160,7 +160,7 @@
     <value>File Download Failed</value>
   </data>
   <data name="FileExists" xml:space="preserve">
-    <value>File already exists. Attempting to overwrite...</value>
+    <value>Can't download file beause file already exists.</value>
   </data>
   <data name="FileSystemLoaded" xml:space="preserve">
     <value>File system loaded successfully.</value>
@@ -170,6 +170,9 @@
   </data>
   <data name="Light" xml:space="preserve">
     <value>Light</value>
+  </data>
+  <data name="RemoveConnection" xml:space="preserve">
+    <value>Connection removed if you were connected to this host the connection will be disconnected</value>
   </data>
   <data name="Ukrainian" xml:space="preserve">
     <value>Ukrainian</value>

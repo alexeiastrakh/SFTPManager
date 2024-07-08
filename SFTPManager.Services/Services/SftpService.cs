@@ -6,7 +6,6 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using Notification.Wpf;
     using Renci.SshNet;
     using SFTPManager.Models;
     using SFTPManager.Resources;
@@ -121,6 +120,20 @@
             }
         }
 
+        public async Task<bool> IsConnectedAsync(SftpSettings settings)
+        {
+            if (!isConnected)
+            {
+                return false;
+            }
+
+            return await Task.Run(() =>
+            {
+                return sftpClient.ConnectionInfo.Host == settings.Server &&
+                       sftpClient.ConnectionInfo.Username == settings.Username;
+            });
+        }
+
         private bool IsDirectory(string remotePath)
         {
             try
@@ -185,6 +198,23 @@
             }
 
             return items;
+        }
+
+        public async Task<bool> FileExistsAsync(string remoteFilePath)
+        {
+            EnsureConnected();
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var fileAttributes = sftpClient.GetAttributes(remoteFilePath);
+                    return fileAttributes != null;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            });
         }
 
         public void Dispose()

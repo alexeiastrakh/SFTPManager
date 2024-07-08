@@ -187,7 +187,7 @@ namespace SFTPManager.Resources {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to File already exists. Attempting to overwrite....
+        ///   Looks up a localized string similar to Can&apos;t download file beause file already exists..
         /// </summary>
         public static string FileExists {
             get {
@@ -219,6 +219,15 @@ namespace SFTPManager.Resources {
         public static string Light {
             get {
                 return ResourceManager.GetString("Light", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection removed if you were connected to this host the connection will be disconnected.
+        /// </summary>
+        public static string RemoveConnection {
+            get {
+                return ResourceManager.GetString("RemoveConnection", resourceCulture);
             }
         }
 

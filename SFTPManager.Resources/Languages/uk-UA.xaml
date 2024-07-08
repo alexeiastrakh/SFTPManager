@@ -32,6 +32,7 @@
 	<sys:String x:Key="FileTransferPageTitle">Передача файлів</sys:String>
     <sys:String x:Key="LocalPathWatermark">Локальний шлях</sys:String>
     <sys:String x:Key="ChooseLocalFileButton">Вибрати локальний файл</sys:String>
+    <sys:String x:Key="ChooseLocalFolderButton">Вибрати локальну папку</sys:String>
     <sys:String x:Key="RemotePathWatermark">Віддалений шлях , наприклад : example\new.txt </sys:String>
     <sys:String x:Key="UploadButton">Завантажити</sys:String>
     <sys:String x:Key="DownloadButton">Скачати</sys:String>

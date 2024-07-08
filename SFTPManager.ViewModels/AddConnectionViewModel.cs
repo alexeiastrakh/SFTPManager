@@ -21,7 +21,6 @@
         private string testResult;
         private readonly NotificationService notificationService;
         private ISftpSettingsProvider settingsProvider;
-        private SshService sshService;
         private readonly SessionService sessionService;
 
         public event Action<SftpSettings> ConnectionSaved;

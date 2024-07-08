@@ -26,6 +26,7 @@
             UploadCommand = new AsyncRelayCommand(UploadFileAsync);
             DownloadCommand = new AsyncRelayCommand(DownloadFileAsync);
             OpenFileDialogCommand = new RelayCommand(OpenFileDialog);
+            OpenFolderDialogCommand = new RelayCommand(OpenFolderDialog);
             LoadRemoteFileSystemCommand = new AsyncRelayCommand(LoadRemoteFileSystemAsync);
         }
 
@@ -58,6 +59,8 @@
 
         public ICommand OpenFileDialogCommand { get; }
 
+        public ICommand OpenFolderDialogCommand { get; }
+
         public ICommand LoadRemoteFileSystemCommand { get; }
 
         private void ShowNotification(string title, string message, NotificationType type = NotificationType.Information)
@@ -87,6 +90,12 @@
                     remoteFilePath = Settings.RemotePath.EndsWith("/") ? $"{Settings.RemotePath}{Path.GetFileName(Settings.LocalPath)}" : $"{Settings.RemotePath}/{Path.GetFileName(Settings.LocalPath)}";
                 }
 
+                if (await SftpService.Instance.FileExistsAsync(remoteFilePath))
+                {
+                    ShowNotification("File Upload", Resources_en.FileExists, NotificationType.Warning);
+                    return;
+                }
+
                 await SftpService.Instance.UploadFileAsync(Settings.LocalPath, remoteFilePath);
                 Result = $"{Resources_en.UploadSuccess} Name: {Path.GetFileName(Settings.LocalPath)}";
                 ShowNotification("File Upload", Resources_en.UploadSuccess);
@@ -96,7 +105,6 @@
                 HandleError(ex, Resources_en.FileUploadFailed);
             }
         }
-
 
         private async Task DownloadFileAsync()
         {
@@ -108,9 +116,10 @@
 
             try
             {
-                if (File.Exists(Settings.LocalPath))
+                if (File.Exists(Path.Combine(Settings.LocalPath, Path.GetFileName(Settings.RemotePath))))
                 {
-                    ShowNotification("File Download", Resources_en.FileExists);
+                    ShowNotification("File Download", Resources_en.FileExists, NotificationType.Warning);
+                    return;
                 }
 
                 string remoteFilePath = Settings.RemotePath.Replace("\\", "/");
@@ -135,6 +144,15 @@
             if (openFileDialog.ShowDialog() == true)
             {
                 Settings.LocalPath = openFileDialog.FileName;
+            }
+        }
+
+        private void OpenFolderDialog()
+        {
+            var folderDialog = new OpenFolderDialog();
+            if (folderDialog.ShowDialog() == true)
+            {
+                Settings.LocalPath = folderDialog.FolderName;
             }
         }
 
